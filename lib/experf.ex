@@ -6,11 +6,27 @@ defmodule Experf do
   end
 
   def main(args) do
-    args |> parse_args |> process(HashDict.new) |> print
+    options = args |> parse_args |> process(HashDict.new)
+    print options
+
+    num_requests = HashDict.get options, :num_requests
+    concurrency  = HashDict.get options, :concurrency
+    rps          = HashDict.get options, :rps
+
+    coordinator = spawn Experf.Coordinator, :start_coordination, [concurrency, rps]
+
+    fun = fn(_) ->
+      spawn Experf.Worker, :run, [coordinator]
+    end
+    Enum.map(1..num_requests, fun)
+
+    receive do
+      :finish -> :ok
+    end
   end
 
   def parse_args(args) do
-    {options, _, _} = OptionParser.parse(args, switches: [help: :boolean],
+    {options, _, _} = OptionParser.parse(args, switches: [help: :boolean, num_requests: :integer, rps: :integer, concurrency: :integer],
                                       aliases: [h: :help, n: :num_requests, s: :rps, c: :concurrency])
 
     options
