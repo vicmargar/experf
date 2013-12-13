@@ -13,15 +13,23 @@ defmodule Experf do
     concurrency  = HashDict.get options, :concurrency
     rps          = HashDict.get options, :rps
     url          = HashDict.get options, :url
+    verbose      = HashDict.get options, :verbose
 
     {:ok, list_url} = String.to_char_list(url)
+
+    start  = :erlang.now()
 
     coordinator = spawn Experf.Coordinator, :start_coordination, [concurrency, rps, num_requests, self()]
 
     job = fn(n) ->
       {{_,_,_}, {h,m,s}} = :erlang.localtime()
-      {:ok, {{200, 'OK'}, _headers, body}} = :lhttpc.request(list_url, 'GET', [], 5000)
-      IO.puts "example.com returned 200 #{inspect n} #{inspect h}:#{inspect m}:#{inspect s}"
+      {:ok, {{200, 'OK'}, headers, body}} = :lhttpc.request(list_url, 'GET', [], 5000)
+      if verbose do
+        IO.puts "Headers: #{inspect headers}"
+        IO.puts "Body: #{inspect body}"
+      else
+        IO.puts "returned 200 #{inspect n} #{inspect h}:#{inspect m}:#{inspect s}"
+      end
     end
 
     fun = fn(_) ->
@@ -31,17 +39,19 @@ defmodule Experf do
 
     receive do
       {:finished, total} ->
-        IO.puts "#{inspect total} requests finished"
+        finish = :erlang.now()
+        diff = :timer.now_diff(finish, start)
+
+        IO.puts "#{inspect total} requests finished in #{diff / 1000000} secs"
         results = :gen_server.call(:experf, :results)
-        IO.puts "Times (us): #{inspect results}"
         mean = DescriptiveStatistics.mean(results)
         IO.puts "Mean #{inspect mean / 1000} (ms)"
     end
   end
 
   def parse_args(args) do
-    {options, _, _} = OptionParser.parse(args, switches: [help: :boolean, num_requests: :integer, rps: :integer, concurrency: :integer, url: :string],
-                                      aliases: [h: :help, n: :num_requests, s: :rps, c: :concurrency, u: :url])
+    {options, _, _} = OptionParser.parse(args, switches: [help: :boolean, num_requests: :integer, rps: :integer, concurrency: :integer, url: :string, verbose: :boolean ],
+                                      aliases: [h: :help, n: :num_requests, s: :rps, c: :concurrency, u: :url, v: :verbose])
 
     options
   end
