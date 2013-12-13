@@ -13,8 +13,8 @@ defmodule Experf.Coordinator do
         pids = HashDict.put(pids, inserted + 1, pid)
         coordinate(inserted + 1, executed, max_concurrency, max_concurrency, pids)
       { pid, :finished, x } ->
-         run(executed + 1, pids)
-         coordinate(inserted, executed + 1, max_concurrency, max_concurrency, pids)
+        run(executed + 1, pids)
+        coordinate(inserted, executed + 1, max_concurrency, max_concurrency, pids)
     end
   end
 
