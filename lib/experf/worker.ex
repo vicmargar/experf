@@ -1,16 +1,15 @@
 defmodule Experf.Worker do
-  def run(coordinator) do
+  def run(coordinator, job) do
     coordinator <- {self(), :run_permission}
 
     receive do
       {:run, n} ->
-        execute(n)
+        execute(n, job)
         coordinator <- {self(), :finished, n}
     end
   end
 
-  def execute(n) do
-    {{_,_,_}, {h,m,s}} = :erlang.localtime()
-    IO.puts "Executing #{inspect n} #{inspect h}:#{inspect m}:#{inspect s}"
+  def execute(n, job) do
+    job.(n)
   end
 end

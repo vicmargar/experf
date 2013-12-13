@@ -15,8 +15,13 @@ defmodule Experf do
 
     coordinator = spawn Experf.Coordinator, :start_coordination, [concurrency, rps]
 
+    job = fn(n) ->
+      {{_,_,_}, {h,m,s}} = :erlang.localtime()
+      IO.puts "Executing job #{inspect n} #{inspect h}:#{inspect m}:#{inspect s}"
+    end
+
     fun = fn(_) ->
-      spawn Experf.Worker, :run, [coordinator]
+      spawn Experf.Worker, :run, [coordinator, job]
     end
     Enum.map(1..num_requests, fun)
 
