@@ -17,7 +17,9 @@ defmodule Experf do
 
     job = fn(n) ->
       {{_,_,_}, {h,m,s}} = :erlang.localtime()
-      IO.puts "Executing job #{inspect n} #{inspect h}:#{inspect m}:#{inspect s}"
+      {:ok, {{200, 'OK'}, _headers, body}} = :lhttpc.request('http://www.example.com', 'GET', [], 1000)
+      IO.puts "example.com returned 200 #{inspect n} #{inspect h}:#{inspect m}:#{inspect s}"
+      IO.puts "#{inspect body}"
     end
 
     fun = fn(_) ->
