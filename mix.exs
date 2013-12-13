@@ -10,7 +10,8 @@ defmodule Experf.Mixfile do
 
   # Configuration for the OTP application
   def application do
-  [ registered: [:experf],
+  [ applications: [:ssl, :lhttpc],
+    registered: [:experf],
     mod: { Experf, [:hello] } ]
   end
 
@@ -20,6 +21,8 @@ defmodule Experf.Mixfile do
   # To specify particular versions, regardless of the tag, do:
   # { :barbat, "~> 0.1", github: "elixir-lang/barbat.git" }
   defp deps do
-    []
+    [{ :lhttpc, github: "esl/lhttpc"},
+     {:descriptive_statistics, github: "pusewicz/descriptive_statistics"}
+    ]
   end
 end
