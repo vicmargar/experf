@@ -36,6 +36,9 @@ defmodule Experf.Coordinator do
   end
 
 
+  @doc """
+  Handles run when max rps has been reached. Sleeps until the second is finished
+  """
   def run(n, pids, start, rps, rps) do
     now = :erlang.now()
     diff = :timer.now_diff(now, start)
@@ -45,6 +48,9 @@ defmodule Experf.Coordinator do
     run(n, pids, :erlang.now(), rps, 0)
   end
 
+  @doc """
+  Handles run when max rps has NOT been reached. Tells worker to run.
+  """
   def run(n, pids, start, rps, executed_this_second) do
     pid = HashDict.get(pids, n)
     if pid do
