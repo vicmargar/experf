@@ -12,6 +12,5 @@ defmodule Experf.Worker do
   def execute(n) do
     {{_,_,_}, {h,m,s}} = :erlang.localtime()
     IO.puts "Executing #{inspect n} #{inspect h}:#{inspect m}:#{inspect s}"
-    :timer.sleep(500)
   end
 end
