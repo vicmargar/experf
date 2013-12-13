@@ -13,6 +13,10 @@ defmodule Experf.Server do
     { :reply, h, stack }
   end
 
+  def handle_call(:results, _from, stack) do
+    { :reply, stack, [] }
+  end
+
   def handle_cast({ :push, new }, stack) do
     { :noreply, [new|stack] }
   end

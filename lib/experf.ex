@@ -12,14 +12,16 @@ defmodule Experf do
     num_requests = HashDict.get options, :num_requests
     concurrency  = HashDict.get options, :concurrency
     rps          = HashDict.get options, :rps
+    url          = HashDict.get options, :url
 
-    coordinator = spawn Experf.Coordinator, :start_coordination, [concurrency, rps]
+    {:ok, list_url} = String.to_char_list(url)
+
+    coordinator = spawn Experf.Coordinator, :start_coordination, [concurrency, rps, num_requests, self()]
 
     job = fn(n) ->
       {{_,_,_}, {h,m,s}} = :erlang.localtime()
-      {:ok, {{200, 'OK'}, _headers, body}} = :lhttpc.request('http://www.example.com', 'GET', [], 1000)
+      {:ok, {{200, 'OK'}, _headers, body}} = :lhttpc.request(list_url, 'GET', [], 5000)
       IO.puts "example.com returned 200 #{inspect n} #{inspect h}:#{inspect m}:#{inspect s}"
-      IO.puts "#{inspect body}"
     end
 
     fun = fn(_) ->
@@ -28,13 +30,18 @@ defmodule Experf do
     Enum.map(1..num_requests, fun)
 
     receive do
-      :finish -> :ok
+      {:finished, total} ->
+        IO.puts "#{inspect total} requests finished"
+        results = :gen_server.call(:experf, :results)
+        IO.puts "Times (us): #{inspect results}"
+        mean = DescriptiveStatistics.mean(results)
+        IO.puts "Mean #{inspect mean / 1000} (ms)"
     end
   end
 
   def parse_args(args) do
-    {options, _, _} = OptionParser.parse(args, switches: [help: :boolean, num_requests: :integer, rps: :integer, concurrency: :integer],
-                                      aliases: [h: :help, n: :num_requests, s: :rps, c: :concurrency])
+    {options, _, _} = OptionParser.parse(args, switches: [help: :boolean, num_requests: :integer, rps: :integer, concurrency: :integer, url: :string],
+                                      aliases: [h: :help, n: :num_requests, s: :rps, c: :concurrency, u: :url])
 
     options
   end

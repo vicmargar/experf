@@ -12,7 +12,7 @@ defmodule Experf.Mixfile do
   def application do
   [ applications: [:ssl, :lhttpc],
     registered: [:experf],
-    mod: { Experf, [:hello] } ]
+    mod: { Experf, [] } ]
   end
 
   # Returns the list of dependencies in the format:

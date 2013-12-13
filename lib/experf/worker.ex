@@ -10,6 +10,10 @@ defmodule Experf.Worker do
   end
 
   def execute(n, job) do
+    start  = :erlang.now()
     job.(n)
+    finish = :erlang.now()
+    diff = :timer.now_diff(finish, start)
+    :gen_server.cast(:experf, {:push, diff})
   end
 end

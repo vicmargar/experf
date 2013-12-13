@@ -1,21 +1,29 @@
 defmodule Experf.Coordinator do
-  def start_coordination(concurrency, rps) do
+  def start_coordination(concurrency, rps, num_requests, caller) do
     start = :erlang.now()
-    coordinate(0, 0, concurrency, 0, HashDict.new, start, rps, 0)
+    :ok = coordinate(0, 0, concurrency, 0, HashDict.new, start, rps, 0, num_requests, 0)
+    caller <- {:finished, num_requests}
+  end
+
+  @doc """
+  num_requests have finished
+  """
+  def coordinate(inserted, executed, max_concurrency, concurrency, pids, start, rps, executed_this_second, num_requests, num_requests) do
+    :ok
   end
 
   @doc """
   Handles :run_permission and :finished messages when max_concurrency HAS been reached.
   run_permission will only store the pid, :finished will ask a process to run
   """
-  def coordinate(inserted, executed, max_concurrency, max_concurrency, pids, start, rps, executed_this_second) do
+  def coordinate(inserted, executed, max_concurrency, max_concurrency, pids, start, rps, executed_this_second, num_requests, finished) do
     receive do
       { pid, :run_permission } ->
         pids = HashDict.put(pids, inserted + 1, pid)
-        coordinate(inserted + 1, executed, max_concurrency, max_concurrency, pids, start, rps, executed_this_second)
+        coordinate(inserted + 1, executed, max_concurrency, max_concurrency, pids, start, rps, executed_this_second, num_requests, finished)
       { pid, :finished, x } ->
         {start, executed_this_second} = run(executed + 1, pids, start, rps, executed_this_second)
-        coordinate(inserted, executed + 1, max_concurrency, max_concurrency, pids, start, rps, executed_this_second)
+        coordinate(inserted, executed + 1, max_concurrency, max_concurrency, pids, start, rps, executed_this_second, num_requests, finished + 1)
     end
   end
 
@@ -23,18 +31,17 @@ defmodule Experf.Coordinator do
   Handles :run_permission and :finished messages when max_concurrency HAS NOT been reached
   yet, in both cases a new process is asked to run
   """
-  def coordinate(inserted, executed, max_concurrency, concurrency, pids, start, rps, executed_this_second) do
+  def coordinate(inserted, executed, max_concurrency, concurrency, pids, start, rps, executed_this_second, num_requests, finished) do
     receive do
       { pid, :run_permission } ->
         pids = HashDict.put(pids, inserted + 1, pid)
         {start, executed_this_second} = run(executed + 1, pids, start, rps, executed_this_second)
-        coordinate(inserted + 1, executed + 1, max_concurrency, concurrency + 1, pids, start, rps, executed_this_second)
+        coordinate(inserted + 1, executed + 1, max_concurrency, concurrency + 1, pids, start, rps, executed_this_second, num_requests, finished)
       { pid, :finished, x } ->
         {start, executed_this_second} = run(executed + 1, pids, start, rps, executed_this_second)
-        coordinate(inserted, executed + 1, max_concurrency, concurrency + 1, pids, start, rps, executed_this_second)
+        coordinate(inserted, executed + 1, max_concurrency, concurrency + 1, pids, start, rps, executed_this_second, num_requests, finished + 1)
     end
   end
-
 
   @doc """
   Handles run when max rps has been reached. Sleeps until the second is finished
