@@ -33,7 +33,7 @@ defmodule Experf.Coordinator do
         coordinate(status.inserted(inserted + 1).pids(pid))
       { pid, :finished } ->
         {start, executed_this_second} = run(executed + 1, pids, start, rps, executed_this_second)
-        coordinate(status.executed(executed + 1).finished(finished + 1).executed_this_second(executed_this_second))
+        coordinate(status.executed(executed + 1).finished(finished + 1).executed_this_second(executed_this_second).start(start))
     end
   end
 
@@ -54,7 +54,7 @@ defmodule Experf.Coordinator do
       { pid, :run_permission } ->
         pids = HashDict.put(pids, inserted + 1, pid)
         {start, executed_this_second} = run(executed + 1, pids, start, rps, executed_this_second)
-        coordinate(status.inserted(inserted + 1).executed(executed + 1).concurrency(concurrency + 1).pids(pids).executed_this_second(executed_this_second))
+        coordinate(status.inserted(inserted + 1).executed(executed + 1).concurrency(concurrency + 1).pids(pids).executed_this_second(executed_this_second).start(start))
       { pid, :finished } ->
         {start, executed_this_second} = run(executed + 1, pids, start, rps, executed_this_second)
         coordinate(status.executed(executed + 1).concurrency(concurrency + 1).pids(pids).start(start).executed_this_second(executed_this_second).finished(finished + 1))
@@ -69,6 +69,7 @@ defmodule Experf.Coordinator do
     diff = :timer.now_diff(now, start)
     remaining = 1000000 - diff
     sleep = max(0,remaining)
+    IO.puts "sleeping for #{inspect sleep} us"
     :timer.sleep(round(sleep / 1000))
     run(n, pids, :erlang.now(), rps, 0)
   end
