@@ -5,7 +5,7 @@ defmodule Experf.Worker do
     receive do
       {:run, n} ->
         execute(n, job)
-        coordinator <- {self(), :finished, n}
+        coordinator <- {self(), :finished}
     end
   end
 
