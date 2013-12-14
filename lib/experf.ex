@@ -50,8 +50,10 @@ defmodule Experf do
   end
 
   def parse_args(args) do
-    {options, _, _} = OptionParser.parse(args, switches: [help: :boolean, num_requests: :integer, rps: :integer, concurrency: :integer, url: :string, verbose: :boolean],
-                                      aliases: [h: :help, n: :num_requests, s: :rps, c: :concurrency, u: :url, v: :verbose])
+    {options, _, _} = OptionParser.parse(args,
+      switches: [num_requests: :integer, rps: :integer, concurrency: :integer, url: :string, verbose: :boolean],
+      aliases:  [n: :num_requests, s: :rps, c: :concurrency, u: :url, v: :verbose]
+    )
 
     options
   end
