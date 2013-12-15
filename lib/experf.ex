@@ -24,12 +24,14 @@ defmodule Experf do
     receive do
       {:finished, total} ->
         finish = :erlang.now()
-        diff = :timer.now_diff(finish, start)
+        diff   = :timer.now_diff(finish, start)
+
+        results = :gen_server.call(:results, :results)
+        mean    = DescriptiveStatistics.mean(results)
+        stdev   = DescriptiveStatistics.standard_deviation(results)
 
         IO.puts "#{inspect total} requests finished in #{diff / 1000000} secs"
-        results = :gen_server.call(:results, :results)
-        mean = DescriptiveStatistics.mean(results)
-        IO.puts "Average response time #{inspect round(mean / 1000)} (ms)"
+        IO.puts "Average response time #{inspect round(mean / 1000)} (ms), stdev #{inspect (stdev/1000)} (ms)"
     end
   end
 
