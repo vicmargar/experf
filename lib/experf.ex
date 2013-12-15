@@ -1,8 +1,8 @@
 defmodule Experf do
   use Application.Behaviour
 
-  def start(_type, stack) do
-    Experf.Supervisor.start_link(stack)
+  def start(_type, []) do
+    Experf.Supervisor.start_link
   end
 
   def main(args) do
@@ -27,7 +27,7 @@ defmodule Experf do
         diff = :timer.now_diff(finish, start)
 
         IO.puts "#{inspect total} requests finished in #{diff / 1000000} secs"
-        results = :gen_server.call(:experf, :results)
+        results = :gen_server.call(:results, :results)
         mean = DescriptiveStatistics.mean(results)
         IO.puts "Mean #{inspect round(mean / 1000)} (ms)"
     end
@@ -48,8 +48,9 @@ defmodule Experf do
   defp spawn_workers(num_requests, url, verbose, coordinator) do
     job = fn(n) ->
       {{_,_,_}, {h,m,s}} = :erlang.localtime()
-      {:ok, {{200, 'OK'}, _headers, _body}} = :lhttpc.request(url, 'GET', [], 5000)
+      {:ok, {{200, _}, _headers, body}} = :lhttpc.request(url, 'GET', [], 5000)
       if verbose do
+        IO.puts "#{inspect body}"
         IO.puts "returned 200 #{inspect n} #{inspect h}:#{inspect m}:#{inspect s}"
       end
     end

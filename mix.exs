@@ -11,7 +11,7 @@ defmodule Experf.Mixfile do
   # Configuration for the OTP application
   def application do
   [ applications: [:ssl, :lhttpc],
-    registered: [:experf],
+    registered: [:results],
     mod: { Experf, [] } ]
   end
 

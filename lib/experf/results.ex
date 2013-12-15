@@ -1,16 +1,12 @@
-defmodule Experf.Server do
+defmodule Experf.Results do
   use GenServer.Behaviour
 
-  def start_link(stack) do
-    :gen_server.start_link({ :local, :experf }, __MODULE__, stack, [])
+  def start_link do
+    :gen_server.start_link({ :local, :results }, __MODULE__, [], [])
   end
 
   def init(stack) do
     { :ok, stack }
-  end
-
-  def handle_call(:pop, _from, [h|stack]) do
-    { :reply, h, stack }
   end
 
   def handle_call(:results, _from, stack) do
