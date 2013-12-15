@@ -29,7 +29,7 @@ defmodule Experf do
         IO.puts "#{inspect total} requests finished in #{diff / 1000000} secs"
         results = :gen_server.call(:results, :results)
         mean = DescriptiveStatistics.mean(results)
-        IO.puts "Mean #{inspect round(mean / 1000)} (ms)"
+        IO.puts "Average response time #{inspect round(mean / 1000)} (ms)"
     end
   end
 
