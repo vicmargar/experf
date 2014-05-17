@@ -1,5 +1,8 @@
 # Experf
 
+  This is an example Elixir application, it performs a number of concurrent http requests to a url,
+  the concurrency and number of requests per second can be configured.
+
     mix deps.get
     mix escriptize
 
