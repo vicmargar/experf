@@ -4,7 +4,7 @@
     mix escriptize
 
 ```
-./experf --num-requests=100 -concurrency=10 -rps=20 -url=http://localhost:8080
+./experf --num-requests=100 --concurrency=10 --rps=20 --url=http://localhost:8080
 [num_requests: 100, concurrency: 10, rps: 20, url: "http://localhost:8080"]
 20/100 requests finished
 40/100 requests finished
