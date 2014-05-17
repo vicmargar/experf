@@ -21,7 +21,7 @@ defmodule Experf do
     spawn_workers(num_requests, url, verbose, coordinator)
 
     receive do
-      {:finished, total} ->
+      {:finished, _total} ->
         finish = :erlang.now()
         diff   = :timer.now_diff(finish, start)
 
@@ -29,7 +29,7 @@ defmodule Experf do
         mean       = DescriptiveStatistics.mean(success)
         stdev      = DescriptiveStatistics.standard_deviation(success)
 
-        IO.puts "#{inspect total} requests finished in #{diff / 1000000} secs"
+        IO.puts "#{length(success)} requests finished in #{diff / 1000000} secs"
         IO.puts "Average response time #{inspect round(mean / 1000)} (ms), stdev #{inspect (stdev/1000)} (ms)"
         IO.puts "#{errors} Errors"
     end

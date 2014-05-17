@@ -45,7 +45,7 @@ defmodule Experf.Coordinator do
         new_second(status)
       { pid, :run_permission } ->
         run_permission(pid, status)
-      { _pid, _n, :finished } ->
+      { _pid, :finished } ->
         finished(status)
     end
   end
