@@ -63,7 +63,7 @@ defmodule Experf do
     end
 
     fun = fn(_) ->
-      spawn Experf.Worker, :run, [coordinator, job]
+      spawn Experf.HttpWorker, :run, [coordinator, job]
     end
     Enum.each(1..num_requests, fun)
   end
