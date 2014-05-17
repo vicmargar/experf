@@ -1,2 +1,3 @@
-[ "descriptive_statistics": {:git, "git://github.com/pusewicz/descriptive_statistics.git", "401109e5e0af9b325d052b0606313774096b552f", []},
-  "lhttpc": {:git, "git://github.com/esl/lhttpc.git", "3c7fdeee241b6813efddcb08ad1697186780d385", []} ]
+%{"descriptive_statistics": {:git, "git://github.com/pusewicz/descriptive_statistics.git", "02fc9f0581d85863823eb2a5d5e481b7765b440f", []},
+  "httpotion": {:git, "git://github.com/myfreeweb/httpotion.git", "346d9c775c628dbd21657bd232a28b7cf718e6e5", []},
+  "ibrowse": {:git, "git://github.com/cmullaparthi/ibrowse.git", "7871e2ebe8811efb64e1917e2de455fa87e8dfe3", [tag: "v4.1.0"]}}
