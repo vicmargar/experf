@@ -1,40 +1,41 @@
-defrecord CoordinatorStatus,
-          inserted: 0, # num of processes that asked for permission to run
-          executed: 0, # num of processes that started running
-          executed_this_second: 0, # num of processes told to run in the current second
-          finished: 0, # num of processes that finished running
-          concurrency: 0,
-          max_concurrency: 0,
-          pids: [],
-          rps: 0,
-          num_requests: 0
+defmodule CoordinatorStatus do
+  defstruct inserted: 0, # num of processes that asked for permission to run
+            executed: 0, # num of processes that started running
+            executed_this_second: 0, # num of processes told to run in the current second
+            finished: 0, # num of processes that finished running
+            concurrency: 0,
+            max_concurrency: 0,
+            pids: [],
+            rps: 0,
+            num_requests: 0
+end
 
 defmodule Experf.Coordinator do
   def start_coordination(concurrency, rps, num_requests, caller) do
     :erlang.send_after(1000, self, {:second})
-    status = CoordinatorStatus.new concurrency: concurrency, pids: HashDict.new, rps: rps, num_requests: num_requests
+    status = %CoordinatorStatus{concurrency: concurrency, pids: HashDict.new, rps: rps, num_requests: num_requests}
     :ok = coordinate(status)
     send(caller, {:finished, num_requests})
   end
 
-  def coordinate(CoordinatorStatus[finished: num_requests, num_requests: num_requests]) do
+  def coordinate(%CoordinatorStatus{finished: num_requests, num_requests: num_requests}) do
     :ok
   end
 
-  def coordinate(status = CoordinatorStatus[concurrency: max_concurrency, max_concurrency: max_concurrency]) do
+  def coordinate(status = %CoordinatorStatus{concurrency: max_concurrency, max_concurrency: max_concurrency}) do
     wait_for_message(status)
   end
 
-  def coordinate(status = CoordinatorStatus[executed_this_second: rps, rps: rps]) do
+  def coordinate(status = %CoordinatorStatus{executed_this_second: rps, rps: rps}) do
     wait_for_message(status)
   end
 
-  def coordinate(status = CoordinatorStatus[inserted: inserted, executed: executed, executed_this_second: executed_this_second, concurrency: concurrency]) when inserted > executed do
+  def coordinate(status = %CoordinatorStatus{inserted: inserted, executed: executed, executed_this_second: executed_this_second, concurrency: concurrency}) when inserted > executed do
     run(executed + 1, status)
-    coordinate(status.executed(executed + 1).concurrency(concurrency + 1).executed_this_second(executed_this_second + 1))
+    coordinate(%{status | executed: executed + 1, concurrency: concurrency + 1, executed_this_second: executed_this_second + 1})
   end
 
-  def coordinate(status = CoordinatorStatus[inserted: inserted, executed: inserted]) do
+  def coordinate(status = %CoordinatorStatus{inserted: inserted, executed: inserted}) do
     wait_for_message(status)
   end
 
@@ -52,19 +53,19 @@ defmodule Experf.Coordinator do
   defp new_second(status) do
     IO.puts "#{inspect status.finished}/#{status.num_requests} requests finished"
     :erlang.send_after(1000, self, {:second})
-    coordinate(status.executed_this_second(0))
+    coordinate(%{status | executed_this_second: 0})
   end
 
-  defp run_permission(pid, status = CoordinatorStatus[inserted: inserted, pids: pids]) do
+  defp run_permission(pid, status = %CoordinatorStatus{inserted: inserted, pids: pids}) do
     pids = HashDict.put(pids, inserted + 1, pid)
-    coordinate(status.inserted(inserted + 1).pids(pids))
+    coordinate(%{status | inserted: inserted + 1, pids: pids})
   end
 
-  defp finished(status = CoordinatorStatus[concurrency: concurrency, finished: finished]) do
-    coordinate(status.finished(finished + 1).concurrency(concurrency - 1))
+  defp finished(status = %CoordinatorStatus{concurrency: concurrency, finished: finished}) do
+    coordinate(%{status | finished: finished + 1, concurrency: concurrency - 1})
   end
 
-  defp run(n, CoordinatorStatus[pids: pids]) do
+  defp run(n, %CoordinatorStatus{pids: pids}) do
     pid = HashDict.get(pids, n)
     if pid do
       send(pid, {:run, n})
