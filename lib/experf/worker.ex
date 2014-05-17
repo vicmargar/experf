@@ -1,11 +1,11 @@
 defmodule Experf.Worker do
   def run(coordinator, job) do
-    coordinator <- {self(), :run_permission}
+    send(coordinator, {self(), :run_permission})
 
     receive do
       {:run, n} ->
         execute(n, job)
-        coordinator <- {self(), n, :finished}
+        send(coordinator, {self(), n, :finished})
     end
   end
 

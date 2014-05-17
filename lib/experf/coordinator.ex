@@ -14,7 +14,7 @@ defmodule Experf.Coordinator do
     :erlang.send_after(1000, self, {:second})
     status = CoordinatorStatus.new concurrency: concurrency, pids: HashDict.new, rps: rps, num_requests: num_requests
     :ok = coordinate(status)
-    caller <- {:finished, num_requests}
+    send(caller, {:finished, num_requests})
   end
 
   def coordinate(CoordinatorStatus[finished: num_requests, num_requests: num_requests]) do
@@ -67,7 +67,7 @@ defmodule Experf.Coordinator do
   defp run(n, CoordinatorStatus[pids: pids]) do
     pid = HashDict.get(pids, n)
     if pid do
-      pid <- {:run, n}
+      send(pid, {:run, n})
     end
   end
 end
