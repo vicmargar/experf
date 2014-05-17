@@ -12,7 +12,7 @@ end
 
 defmodule Experf.Coordinator do
   def start_coordination(concurrency, rps, num_requests, caller) do
-    :erlang.send_after(1000, self, {:second})
+    Process.send_after(self, {:second}, 1000)
     status = %CoordinatorStatus{concurrency: concurrency, pids: HashDict.new, rps: rps, num_requests: num_requests}
     :ok = coordinate(status)
     send(caller, {:finished, num_requests})
@@ -52,7 +52,7 @@ defmodule Experf.Coordinator do
 
   defp new_second(status) do
     IO.puts "#{inspect status.finished}/#{status.num_requests} requests finished"
-    :erlang.send_after(1000, self, {:second})
+    Process.send_after(self, {:second}, 1000)
     coordinate(%{status | executed_this_second: 0})
   end
 
