@@ -16,6 +16,7 @@ defmodule Experf do
     verbose      = options[:verbose]
 
     start  = :erlang.now()
+
     coordinator = spawn_coordinator(concurrency, rps, num_requests)
     spawn_workers(num_requests, url, verbose, coordinator)
 
@@ -24,12 +25,13 @@ defmodule Experf do
         finish = :erlang.now()
         diff   = :timer.now_diff(finish, start)
 
-        results = :gen_server.call(:results, :results)
-        mean    = DescriptiveStatistics.mean(results)
-        stdev   = DescriptiveStatistics.standard_deviation(results)
+        %{success: success, errors: errors} = :gen_server.call(:results, :results)
+        mean       = DescriptiveStatistics.mean(success)
+        stdev      = DescriptiveStatistics.standard_deviation(success)
 
         IO.puts "#{inspect total} requests finished in #{diff / 1000000} secs"
         IO.puts "Average response time #{inspect round(mean / 1000)} (ms), stdev #{inspect (stdev/1000)} (ms)"
+        IO.puts "#{errors} Errors"
     end
   end
 
@@ -46,24 +48,9 @@ defmodule Experf do
   end
 
   defp spawn_workers(num_requests, url, verbose, coordinator) do
-    job = fn(n) ->
-      {{_,_,_}, {h,m,s}} = :erlang.localtime()
-
-      try do
-        %HTTPotion.Response{status_code: 200, body: body} = HTTPotion.get url
-
-        if verbose do
-          IO.puts "#{inspect body}"
-          IO.puts "returned 200 #{inspect n} #{inspect h}:#{inspect m}:#{inspect s}"
-        end
-      rescue
-        HTTPotion.HTTPError ->
-          IO.puts "Error!"
-      end
-    end
-
     fun = fn(_) ->
-      spawn Experf.HttpWorker, :run, [coordinator, job]
+      options = %{verbose: verbose, url: url}
+      spawn Experf.HttpWorker, :run, [coordinator, options]
     end
     Enum.each(1..num_requests, fun)
   end
