@@ -3,14 +3,15 @@ defmodule Experf.Mixfile do
 
   def project do
     [ app: :experf,
-      version: "0.0.1",
-      elixir: "~> 0.11.2",
+      version: "0.0.2",
+      elixir: "~> 0.13.2",
+      escript_main_module: Experf,
       deps: deps ]
   end
 
   # Configuration for the OTP application
   def application do
-  [ applications: [:ssl, :lhttpc],
+  [ applications: [:ssl, :httpotion],
     registered: [:results],
     mod: { Experf, [] } ]
   end
@@ -21,8 +22,9 @@ defmodule Experf.Mixfile do
   # To specify particular versions, regardless of the tag, do:
   # { :barbat, "~> 0.1", github: "elixir-lang/barbat.git" }
   defp deps do
-    [{ :lhttpc, github: "esl/lhttpc"},
-     {:descriptive_statistics, github: "pusewicz/descriptive_statistics"}
+    [
+     { :httpotion, github: "myfreeweb/httpotion" },
+     { :descriptive_statistics, github: "pusewicz/descriptive_statistics"}
     ]
   end
 end

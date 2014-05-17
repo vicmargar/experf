@@ -15,11 +15,9 @@ defmodule Experf do
     url          = options[:url]
     verbose      = options[:verbose]
 
-    {:ok, list_url} = String.to_char_list(url)
-
     start  = :erlang.now()
     coordinator = spawn_coordinator(concurrency, rps, num_requests)
-    spawn_workers(num_requests, list_url, verbose, coordinator)
+    spawn_workers(num_requests, url, verbose, coordinator)
 
     receive do
       {:finished, total} ->
@@ -50,10 +48,17 @@ defmodule Experf do
   defp spawn_workers(num_requests, url, verbose, coordinator) do
     job = fn(n) ->
       {{_,_,_}, {h,m,s}} = :erlang.localtime()
-      {:ok, {{200, _}, _headers, body}} = :lhttpc.request(url, 'GET', [], 5000)
-      if verbose do
-        IO.puts "#{inspect body}"
-        IO.puts "returned 200 #{inspect n} #{inspect h}:#{inspect m}:#{inspect s}"
+
+      try do
+        %HTTPotion.Response{status_code: 200, body: body} = HTTPotion.get url
+
+        if verbose do
+          IO.puts "#{inspect body}"
+          IO.puts "returned 200 #{inspect n} #{inspect h}:#{inspect m}:#{inspect s}"
+        end
+      rescue
+        HTTPotion.HTTPError ->
+          IO.puts "Error!"
       end
     end
 
