@@ -1,5 +1,5 @@
 defmodule Experf.Supervisor do
-  use Supervisor.Behaviour
+  use Supervisor
 
   # A convenience to start the supervisor
   def start_link do

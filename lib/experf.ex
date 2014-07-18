@@ -1,5 +1,5 @@
 defmodule Experf do
-  use Application.Behaviour
+  use Application
 
   def start(_type, []) do
     Experf.Supervisor.start_link

@@ -1,5 +1,5 @@
 defmodule Experf.Results do
-  use GenServer.Behaviour
+  use GenServer
 
   def start_link do
     :gen_server.start_link({ :local, :results }, __MODULE__, %{success: [], errors: 0}, [])
