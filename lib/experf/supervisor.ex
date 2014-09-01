@@ -3,7 +3,7 @@ defmodule Experf.Supervisor do
 
   # A convenience to start the supervisor
   def start_link do
-    :supervisor.start_link(__MODULE__, [])
+    Supervisor.start_link(Experf.Supervisor, [])
   end
 
   # The callback invoked when the supervisor starts
