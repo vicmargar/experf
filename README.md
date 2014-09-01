@@ -4,7 +4,7 @@
   the concurrency and number of requests per second can be configured.
 
     mix deps.get
-    mix escriptize
+    mix escript.build
 
 ```
 ./experf --num-requests=100 --concurrency=10 --rps=20 --url=http://localhost:8080
