@@ -2,7 +2,7 @@ defmodule Experf.Results do
   use GenServer
 
   def start_link do
-    :gen_server.start_link({ :local, :results }, __MODULE__, %{success: [], errors: 0}, [])
+    GenServer.start_link(Experf.Results, %{success: [], errors: 0}, name: Experf.Results)
   end
 
   def init(stack) do

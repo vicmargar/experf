@@ -1,3 +1,5 @@
+require Logger
+
 defmodule Experf.Worker do
   defmacro __using__(_) do
     quote do
@@ -11,7 +13,7 @@ defmodule Experf.Worker do
           end
         rescue
           error ->
-            :gen_server.cast(:results, {:error})
+            GenServer.cast(Experf.Results, {:error})
         after
           send(coordinator, {self(), :finished})
         end
@@ -23,9 +25,9 @@ defmodule Experf.Worker do
           :ok ->
             finish = :erlang.now()
             diff   = :timer.now_diff(finish, start)
-            :gen_server.cast(:results, {:success, diff})
+            GenServer.cast(Experf.Results, {:success, diff})
           :error ->
-            :gen_server.cast(:results, {:error})
+            GenServer.cast(Experf.Results, {:error})
         end
       end
 
