@@ -3,15 +3,15 @@ defmodule Experf.Mixfile do
 
   def project do
     [ app: :experf,
-      version: "0.0.2",
-      elixir: "> 0.13.2",
+      version: "0.0.3",
+      elixir: ">= 0.15.1",
       escript: [main_module: Experf],
       deps: deps ]
   end
 
   # Configuration for the OTP application
   def application do
-  [ applications: [:httpotion],
+  [ applications: [:httpotion, :logger],
     registered: [:results],
     mod: { Experf, [] } ]
   end

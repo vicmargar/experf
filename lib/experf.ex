@@ -1,3 +1,5 @@
+require Logger
+
 defmodule Experf do
   use Application
 
@@ -7,7 +9,7 @@ defmodule Experf do
 
   def main(args) do
     options = args |> parse_args
-    IO.puts "#{inspect options}"
+    Logger.info "#{inspect options}"
 
     num_requests = options[:num_requests]
     concurrency  = options[:concurrency]
@@ -25,13 +27,14 @@ defmodule Experf do
         finish = :erlang.now()
         diff   = :timer.now_diff(finish, start)
 
-        %{success: success, errors: errors} = :gen_server.call(:results, :results)
+        %{success: success, errors: errors} = GenServer.call(Experf.Results, :results)
+
         mean       = DescriptiveStatistics.mean(success)
         stdev      = DescriptiveStatistics.standard_deviation(success)
 
-        IO.puts "#{length(success)} requests finished in #{diff / 1000000} secs"
-        IO.puts "Average response time #{inspect round(mean / 1000)} (ms), stdev #{inspect (stdev/1000)} (ms)"
-        IO.puts "#{errors} Errors"
+        Logger.info "#{length(success)} requests finished in #{diff / 1000000} secs"
+        Logger.info "Average response time #{inspect round(mean / 1000)} (ms), stdev #{inspect (stdev/1000)} (ms)"
+        Logger.info "#{errors} Errors"
     end
   end
 

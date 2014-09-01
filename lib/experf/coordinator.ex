@@ -1,3 +1,5 @@
+require Logger
+
 defmodule CoordinatorStatus do
   defstruct inserted: 0, # num of processes that asked for permission to run
             executed: 0, # num of processes that started running
@@ -51,7 +53,7 @@ defmodule Experf.Coordinator do
   end
 
   defp new_second(status) do
-    IO.puts "#{inspect status.finished}/#{status.num_requests} requests finished"
+    Logger.info "#{inspect status.finished}/#{status.num_requests} requests finished"
     Process.send_after(self, {:second}, 1000)
     coordinate(%{status | executed_this_second: 0})
   end
