@@ -18,7 +18,6 @@ defmodule Experf.Coordinator do
     Process.send_after(self, {:second}, 1000)
     status = %CoordinatorStatus{concurrency: concurrency, pids: HashDict.new, rps: rps, num_requests: num_requests}
     coordinate(status)
-    # send(caller, {:finished, num_requests})
   end
 
   def coordinate(%CoordinatorStatus{finished: num_requests, num_requests: num_requests}) do
