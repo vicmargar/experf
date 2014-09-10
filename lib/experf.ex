@@ -8,20 +8,14 @@ defmodule Experf do
   end
 
   def main(args) do
-    options = args |> parse_args
+    options = args |> parse_args |> Enum.into(%{})
     Logger.info "#{inspect options}"
-
-    num_requests = options[:num_requests]
-    concurrency  = options[:concurrency]
-    rps          = options[:rps]
-    url          = options[:url]
-    verbose      = options[:verbose]
 
     start  = :erlang.now()
 
-    coordinator_task = Task.async(Experf.Coordinator, :start_coordination, [concurrency, rps, num_requests])
+    coordinator_task = Task.async(Experf.Coordinator, :start_coordination, [options])
 
-    spawn_workers(num_requests, url, verbose, Experf.Coordinator)
+    spawn_workers(options, Experf.Coordinator)
 
     Task.await(coordinator_task)
 
@@ -39,13 +33,10 @@ defmodule Experf do
     options
   end
 
-  defp spawn_workers(num_requests, url, verbose, coordinator) do
-    options = %{verbose: verbose, url: url}
-
-    fun = fn(_) ->
+  defp spawn_workers(options, coordinator) do
+    for _ <- 1..options[:num_requests] do
       spawn Experf.HttpWorker, :run, [coordinator, options]
     end
-    Enum.each(1..num_requests, fun)
   end
 
   defp print_results(%{success: success, errors: errors}, diff) do

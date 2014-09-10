@@ -3,10 +3,9 @@ require Logger
 defmodule Experf.HttpWorker do
   use Experf.Worker
 
-  def execute(n, options) do
+  def execute(n, options = %{url: url}) do
     {{_,_,_}, {h,m,s}} = :erlang.localtime()
 
-    url     = options[:url]
     verbose = options[:verbose]
 
     case HTTPotion.get url do

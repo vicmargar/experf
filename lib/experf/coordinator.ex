@@ -13,7 +13,7 @@ defmodule CoordinatorStatus do
 end
 
 defmodule Experf.Coordinator do
-  def start_coordination(concurrency, rps, num_requests) do
+  def start_coordination(%{concurrency: concurrency, rps: rps, num_requests: num_requests}) do
     Process.register(self, Experf.Coordinator)
     Process.send_after(self, {:second}, 1000)
     status = %CoordinatorStatus{concurrency: concurrency, pids: HashDict.new, rps: rps, num_requests: num_requests}
