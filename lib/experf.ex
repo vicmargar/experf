@@ -50,6 +50,6 @@ defmodule Experf do
     end
 
     Logger.info "#{successful} - Successful Requests"
-    Logger.info "#{errors}     - Errors"
+    Logger.info "#{errors} - Errors"
   end
 end
