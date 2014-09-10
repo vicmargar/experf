@@ -19,16 +19,16 @@ defmodule Experf do
 
     start  = :erlang.now()
 
-    coordinator = spawn_coordinator(concurrency, rps, num_requests)
-    spawn_workers(num_requests, url, verbose, coordinator)
+    coordinator_task = Task.async(Experf.Coordinator, :start_coordination, [concurrency, rps, num_requests])
 
-    receive do
-      {:finished, _total} ->
-        finish = :erlang.now()
-        diff   = :timer.now_diff(finish, start)
+    spawn_workers(num_requests, url, verbose, Experf.Coordinator)
 
-        GenServer.call(Experf.Results, :results) |> print_results(diff)
-    end
+    Task.await(coordinator_task)
+
+    finish = :erlang.now()
+    diff   = :timer.now_diff(finish, start)
+
+    GenServer.call(Experf.Results, :results) |> print_results(diff)
   end
 
   defp parse_args(args) do
@@ -37,10 +37,6 @@ defmodule Experf do
       aliases:  [n: :num_requests, s: :rps, c: :concurrency, u: :url, v: :verbose]
     )
     options
-  end
-
-  defp spawn_coordinator(concurrency, rps, num_requests) do
-    spawn Experf.Coordinator, :start_coordination, [concurrency, rps, num_requests, self()]
   end
 
   defp spawn_workers(num_requests, url, verbose, coordinator) do

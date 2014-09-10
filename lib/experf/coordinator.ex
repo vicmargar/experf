@@ -13,11 +13,12 @@ defmodule CoordinatorStatus do
 end
 
 defmodule Experf.Coordinator do
-  def start_coordination(concurrency, rps, num_requests, caller) do
+  def start_coordination(concurrency, rps, num_requests) do
+    Process.register(self, Experf.Coordinator)
     Process.send_after(self, {:second}, 1000)
     status = %CoordinatorStatus{concurrency: concurrency, pids: HashDict.new, rps: rps, num_requests: num_requests}
-    :ok = coordinate(status)
-    send(caller, {:finished, num_requests})
+    coordinate(status)
+    # send(caller, {:finished, num_requests})
   end
 
   def coordinate(%CoordinatorStatus{finished: num_requests, num_requests: num_requests}) do
