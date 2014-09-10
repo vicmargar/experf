@@ -4,7 +4,7 @@ defmodule Experf.Mixfile do
   def project do
     [ app: :experf,
       version: "0.0.3",
-      elixir: ">= 0.15.1",
+      elixir: ">= 1.0.0",
       escript: [main_module: Experf],
       deps: deps ]
   end
