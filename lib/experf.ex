@@ -27,14 +27,7 @@ defmodule Experf do
         finish = :erlang.now()
         diff   = :timer.now_diff(finish, start)
 
-        %{success: success, errors: errors} = GenServer.call(Experf.Results, :results)
-
-        mean       = DescriptiveStatistics.mean(success)
-        stdev      = DescriptiveStatistics.standard_deviation(success)
-
-        Logger.info "#{length(success)} requests finished in #{diff / 1000000} secs"
-        Logger.info "Average response time #{inspect round(mean / 1000)} (ms), stdev #{inspect (stdev/1000)} (ms)"
-        Logger.info "#{errors} Errors"
+        GenServer.call(Experf.Results, :results) |> print_results(diff)
     end
   end
 
@@ -51,10 +44,25 @@ defmodule Experf do
   end
 
   defp spawn_workers(num_requests, url, verbose, coordinator) do
+    options = %{verbose: verbose, url: url}
+
     fun = fn(_) ->
-      options = %{verbose: verbose, url: url}
       spawn Experf.HttpWorker, :run, [coordinator, options]
     end
     Enum.each(1..num_requests, fun)
+  end
+
+  defp print_results(%{success: success, errors: errors}, diff) do
+    successful = length(success)
+    mean       = DescriptiveStatistics.mean(success)
+    stdev      = DescriptiveStatistics.standard_deviation(success)
+
+    if successful > 0 do
+      Logger.info "#{length(success)} requests finished in #{diff / 1000000} secs"
+      Logger.info "Average response time #{inspect round(mean / 1000)} (ms), stdev #{inspect (stdev/1000)} (ms)"
+    end
+
+    Logger.info "#{successful} - Successful Requests"
+    Logger.info "#{errors}     - Errors"
   end
 end
