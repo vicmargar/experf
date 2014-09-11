@@ -20,24 +20,24 @@ defmodule Experf.Coordinator do
     coordinate(status)
   end
 
-  def coordinate(%CoordinatorStatus{finished: num_requests, num_requests: num_requests}) do
+  def coordinate(%{finished: num_requests, num_requests: num_requests}) do
     :ok
   end
 
-  def coordinate(status = %CoordinatorStatus{concurrency: max_concurrency, max_concurrency: max_concurrency}) do
+  def coordinate(status = %{concurrency: max_concurrency, max_concurrency: max_concurrency}) do
     wait_for_message(status)
   end
 
-  def coordinate(status = %CoordinatorStatus{executed_this_second: rps, rps: rps}) do
+  def coordinate(status = %{executed_this_second: rps, rps: rps}) do
     wait_for_message(status)
   end
 
-  def coordinate(status = %CoordinatorStatus{pids: [pid | pids],inserted: inserted, executed: executed, executed_this_second: executed_this_second, concurrency: concurrency}) when inserted > executed do
+  def coordinate(status = %{pids: [pid | pids],inserted: inserted, executed: executed, executed_this_second: executed_this_second, concurrency: concurrency}) when inserted > executed do
     send(pid, {:run, executed + 1})
     coordinate(%{status | executed: executed + 1, concurrency: concurrency + 1, executed_this_second: executed_this_second + 1, pids: pids})
   end
 
-  def coordinate(status = %CoordinatorStatus{inserted: inserted, executed: inserted}) do
+  def coordinate(status = %{inserted: inserted, executed: inserted}) do
     wait_for_message(status)
   end
 
@@ -58,11 +58,11 @@ defmodule Experf.Coordinator do
     coordinate(%{status | executed_this_second: 0})
   end
 
-  defp run_permission(pid, status = %CoordinatorStatus{inserted: inserted, pids: pids}) do
+  defp run_permission(pid, status = %{inserted: inserted, pids: pids}) do
     coordinate(%{status | inserted: inserted + 1, pids: pids ++ [pid]})
   end
 
-  defp finished(status = %CoordinatorStatus{concurrency: concurrency, finished: finished}) do
+  defp finished(status = %{concurrency: concurrency, finished: finished}) do
     coordinate(%{status | finished: finished + 1, concurrency: concurrency - 1})
   end
 end
