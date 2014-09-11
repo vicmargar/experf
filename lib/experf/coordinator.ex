@@ -15,9 +15,8 @@ end
 defmodule Experf.Coordinator do
   def start_coordination(%{concurrency: concurrency, rps: rps, num_requests: num_requests}) do
     Process.register(self, Experf.Coordinator)
-    Process.send_after(self, {:second}, 1000)
     status = %CoordinatorStatus{concurrency: concurrency, rps: rps, num_requests: num_requests}
-    coordinate(status)
+    new_second(status)
   end
 
   def coordinate(%{finished: num_requests, num_requests: num_requests}) do
