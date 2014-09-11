@@ -16,7 +16,7 @@ defmodule Experf.Coordinator do
   def start_coordination(%{concurrency: concurrency, rps: rps, num_requests: num_requests}) do
     Process.register(self, Experf.Coordinator)
     Process.send_after(self, {:second}, 1000)
-    status = %CoordinatorStatus{concurrency: concurrency, pids: HashDict.new, rps: rps, num_requests: num_requests}
+    status = %CoordinatorStatus{concurrency: concurrency, rps: rps, num_requests: num_requests}
     coordinate(status)
   end
 
@@ -32,9 +32,9 @@ defmodule Experf.Coordinator do
     wait_for_message(status)
   end
 
-  def coordinate(status = %CoordinatorStatus{inserted: inserted, executed: executed, executed_this_second: executed_this_second, concurrency: concurrency}) when inserted > executed do
-    run(executed + 1, status)
-    coordinate(%{status | executed: executed + 1, concurrency: concurrency + 1, executed_this_second: executed_this_second + 1})
+  def coordinate(status = %CoordinatorStatus{pids: [pid | pids],inserted: inserted, executed: executed, executed_this_second: executed_this_second, concurrency: concurrency}) when inserted > executed do
+    send(pid, {:run, executed + 1})
+    coordinate(%{status | executed: executed + 1, concurrency: concurrency + 1, executed_this_second: executed_this_second + 1, pids: pids})
   end
 
   def coordinate(status = %CoordinatorStatus{inserted: inserted, executed: inserted}) do
@@ -59,18 +59,10 @@ defmodule Experf.Coordinator do
   end
 
   defp run_permission(pid, status = %CoordinatorStatus{inserted: inserted, pids: pids}) do
-    pids = HashDict.put(pids, inserted + 1, pid)
-    coordinate(%{status | inserted: inserted + 1, pids: pids})
+    coordinate(%{status | inserted: inserted + 1, pids: pids ++ [pid]})
   end
 
   defp finished(status = %CoordinatorStatus{concurrency: concurrency, finished: finished}) do
     coordinate(%{status | finished: finished + 1, concurrency: concurrency - 1})
-  end
-
-  defp run(n, %CoordinatorStatus{pids: pids}) do
-    pid = HashDict.get(pids, n)
-    if pid do
-      send(pid, {:run, n})
-    end
   end
 end
