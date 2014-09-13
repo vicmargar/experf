@@ -17,7 +17,7 @@ defmodule Experf do
 
     spawn_workers(options, Experf.Coordinator)
 
-    Task.await(coordinator_task)
+    Task.await(coordinator_task, :infinity)
 
     finish = :erlang.now()
     diff   = :timer.now_diff(finish, start)
