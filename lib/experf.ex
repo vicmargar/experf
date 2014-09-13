@@ -3,14 +3,19 @@ require Logger
 defmodule Experf do
   def main(args) do
     options = parse_args(args)
-
-    Logger.info inspect(options)
+    do_requests(options[:n], options[:url])
   end
 
-  def parse_args(args) do
+  defp parse_args(args) do
     {options, _, _} = OptionParser.parse(args,
       switches: [n: :integer, url: :string]
     )
-    Enum.into(options, %{})
+    options
+  end
+
+  defp do_requests(n, url) do
+    Enum.each(1..n, fn(i) ->
+      Experf.Http.request(i, url)
+    end)
   end
 end
