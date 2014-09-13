@@ -15,7 +15,7 @@ defmodule Experf do
 
   defp do_requests(n, url) do
     Enum.each(1..n, fn(i) ->
-      Experf.Http.request(i, url)
+      spawn Experf.Http, :request, [i, url]
     end)
   end
 end
