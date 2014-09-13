@@ -7,6 +7,8 @@ defmodule Experf.Http do
     rescue
       error in HTTPoison.HTTPError ->
         Logger.info "#{id}: error (#{inspect error.message})"
+    after
+      send Experf.Coordinator, {:finished, id}
     end
   end
 
