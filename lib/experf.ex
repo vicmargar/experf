@@ -7,10 +7,10 @@ defmodule Experf do
     Logger.info inspect(options)
   end
 
-  def parse_args(args) do
+  defp parse_args(args) do
     {options, _, _} = OptionParser.parse(args,
       switches: [n: :integer, url: :string]
     )
-    Enum.into(options, %{})
+    options
   end
 end
