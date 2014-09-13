@@ -2,29 +2,30 @@ defmodule Experf.Mixfile do
   use Mix.Project
 
   def project do
-    [ app: :experf,
-      version: "0.0.3",
-      elixir: ">= 1.0.0",
-      escript: [main_module: Experf],
-      deps: deps ]
+    [app: :experf,
+     version: "0.0.1",
+     elixir: "~> 1.0.0",
+     escript: [main_module: Experf],
+     deps: deps]
   end
 
   # Configuration for the OTP application
+  #
+  # Type `mix help compile.app` for more information
   def application do
-  [ applications: [:httpotion, :logger],
-    registered: [:results],
-    mod: { Experf, [] } ]
+    [applications: [:logger]]
   end
 
-  # Returns the list of dependencies in the format:
-  # { :foobar, git: "https://github.com/elixir-lang/foobar.git", tag: "0.1" }
+  # Dependencies can be Hex packages:
   #
-  # To specify particular versions, regardless of the tag, do:
-  # { :barbat, "~> 0.1", github: "elixir-lang/barbat.git" }
+  #   {:mydep, "~> 0.3.0"}
+  #
+  # Or git/path repositories:
+  #
+  #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1.0"}
+  #
+  # Type `mix help deps` for more examples and options
   defp deps do
-    [
-     { :httpotion, github: "myfreeweb/httpotion" },
-     { :descriptive_statistics, github: "pusewicz/descriptive_statistics"}
-    ]
+    []
   end
 end
