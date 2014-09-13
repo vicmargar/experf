@@ -3,8 +3,7 @@ require Logger
 defmodule Experf.Http do
   def request(id, url) do
     try do
-      response = HTTPoison.get(url)
-      handle_response(response, id)
+      HTTPoison.get(url) |> handle_response(id)
     rescue
       error in HTTPoison.HTTPError ->
         Logger.info "#{id}: error (#{inspect error.message})"
