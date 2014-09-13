@@ -2,7 +2,7 @@ defmodule Experf do
   def main(args) do
     options = parse_args(args)
 
-    coord_task = Task.async(Experf.Coordinator, :start, [options[:n]])
+    coord_task = Task.async(Experf.Coordinator, :start, [options[:n], options[:rps]])
     do_requests(options[:n], options[:url])
 
     Task.await(coord_task)
@@ -10,7 +10,7 @@ defmodule Experf do
 
   defp parse_args(args) do
     {options, _, _} = OptionParser.parse(args,
-      switches: [n: :integer, url: :string]
+      switches: [n: :integer, url: :string, rps: :integer]
     )
     options
   end

@@ -1,7 +1,7 @@
 defmodule Experf.Coordinator do
-  def start(n) do
+  def start(n, rps) do
     Process.register(self, Experf.Coordinator)
-    coordinate(%{finished: 0, num_requests: n})
+    coordinate(%{finished: 0, num_requests: n, rps: rps})
   end
 
   defp coordinate(%{finished: n, num_requests: n}) do
