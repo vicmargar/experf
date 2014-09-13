@@ -26,6 +26,8 @@ defmodule Experf.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    []
+    [
+      {:httpoison, "~> 0.4.2"}
+    ]
   end
 end
