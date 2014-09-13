@@ -1,5 +1,3 @@
-require Logger
-
 defmodule Experf.Coordinator do
   def start(n) do
     Process.register(self, Experf.Coordinator)
