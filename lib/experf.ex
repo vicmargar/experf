@@ -5,7 +5,7 @@ defmodule Experf do
     coord_task = Task.async(Experf.Coordinator, :start, [options[:n], options[:rps]])
     do_requests(options[:n], options[:url])
 
-    Task.await(coord_task)
+    Task.await(coord_task, :infinity)
   end
 
   defp parse_args(args) do
