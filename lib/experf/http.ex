@@ -2,13 +2,18 @@ require Logger
 
 defmodule Experf.Http do
   def request(id, url) do
-    try do
-      HTTPoison.get(url) |> handle_response(id)
-    rescue
-      error in HTTPoison.HTTPError ->
-        Logger.info "#{id}: error (#{inspect error.message})"
-    after
-      send Experf.Coordinator, {:finished, id}
+    send Experf.Coordinator, {:run_permission, self}
+
+    receive do
+      {:run} ->
+        try do
+          HTTPoison.get(url) |> handle_response(id)
+        rescue
+          error in HTTPoison.HTTPError ->
+            Logger.info "#{id}: error (#{inspect error.message})"
+        after
+          send Experf.Coordinator, {:finished, id}
+        end
     end
   end
 
