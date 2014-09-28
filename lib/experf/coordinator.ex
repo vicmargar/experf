@@ -12,6 +12,9 @@ defmodule Experf.Coordinator do
     receive do
       {:finished, _i} ->
         coordinate(%{status | finished: f + 1})
+      {:run_permission, pid} ->
+        send(pid, {:run})
+        coordinate(status)
     end
   end
 end
