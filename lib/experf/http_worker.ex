@@ -11,6 +11,7 @@ defmodule Experf.HttpWorker do
     case HTTPotion.get url do
       %HTTPotion.Response{status_code: 200, body: body} ->
         if verbose do
+          Logger.info "url: #{url}"
           Logger.info "#{inspect body}"
           Logger.info "returned 200 #{inspect n} #{inspect h}:#{inspect m}:#{inspect s}"
         end
