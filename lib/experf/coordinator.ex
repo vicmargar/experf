@@ -16,7 +16,10 @@ defmodule Experf.Coordinator do
   def start_coordination(%{concurrency: concurrency, rps: rps, num_requests: num_requests}) do
     Process.register(self, Experf.Coordinator)
     status = %CoordinatorStatus{concurrency: concurrency, rps: rps, num_requests: num_requests}
-    new_second(status)
+    receive do
+      :start ->
+        new_second(status)
+    end
   end
 
   def coordinate(%{finished: num_requests, num_requests: num_requests}) do
@@ -31,11 +34,13 @@ defmodule Experf.Coordinator do
     wait_for_message(status)
   end
 
+  # Do we need to keep track of inserted? We have the list of pids so we know there are still remaining processes
   def coordinate(status = %{pids: [pid | pids],inserted: inserted, executed: executed, executed_this_second: executed_this_second, concurrency: concurrency}) when inserted > executed do
     send(pid, {:run, executed + 1})
     coordinate(%{status | executed: executed + 1, concurrency: concurrency + 1, executed_this_second: executed_this_second + 1, pids: pids})
   end
 
+  # is this quivalent to pids: [] ????, do we need this at all????
   def coordinate(status = %{inserted: inserted, executed: inserted}) do
     wait_for_message(status)
   end
